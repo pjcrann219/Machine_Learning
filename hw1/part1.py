@@ -53,9 +53,14 @@ class Tree(object):
         '''
         #########################################
         ## INSERT YOUR CODE HERE
+        counter = Counter(Y)
+        total_instances = len(Y)
 
-
-
+        e = 0
+        for i in counter:
+            num_instances = counter[i]
+            p = num_instances/total_instances
+            e += -p * math.log2(p)
 
         #########################################
         return e 
@@ -75,11 +80,14 @@ class Tree(object):
         '''
         #########################################
         ## INSERT YOUR CODE HERE
+        counter = Counter(Y)
+        total_instances = len(Y)
 
-        
-   
-
-
+        e = 0
+        for i in counter:
+            num_instances = counter[i]
+            p = num_instances/total_instances
+            e += -p * math.log2(p)
  
         #########################################
         return ce 
