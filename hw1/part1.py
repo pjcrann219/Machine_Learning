@@ -52,7 +52,6 @@ class Tree(object):
             Hint: you could use collections.Counter.
         '''
         #########################################
-        ## INSERT YOUR CODE HERE
         counter = Counter(Y)
         total_instances = len(Y)
 
@@ -60,7 +59,8 @@ class Tree(object):
         for i in counter:
             num_instances = counter[i]
             p = num_instances/total_instances
-            e += -p * math.log2(p)
+            if p != 0:
+                e += -p * math.log2(p)
 
         #########################################
         return e 
@@ -79,16 +79,17 @@ class Tree(object):
                 ce: the conditional entropy of y given x, a float scalar
         '''
         #########################################
-        ## INSERT YOUR CODE HERE
-        counter = Counter(Y)
-        total_instances = len(Y)
-
-        e = 0
-        for i in counter:
-            num_instances = counter[i]
-            p = num_instances/total_instances
-            e += -p * math.log2(p)
  
+        # Loop through values (Ys)
+        ce = 0
+        counter_X = Counter(X)
+        S_bar = len(X)
+        for v in counter_X:
+            Sv_bar = counter_X[v]
+            p_v = Sv_bar / S_bar
+            Y_given_v = Y[X == v]
+            ce += p_v * Tree.entropy(Y_given_v)
+
         #########################################
         return ce 
     
@@ -107,11 +108,7 @@ class Tree(object):
                 g: the information gain of y after spliting over x, a float scalar
         '''
         #########################################
-        ## INSERT YOUR CODE HERE
-    
-
-
- 
+        g = Tree.entropy(Y) - Tree.conditional_entropy(Y, X)
         #########################################
         return g
 
@@ -132,11 +129,13 @@ class Tree(object):
                 i: the index of the attribute to split, an integer scalar
         '''
         #########################################
-        ## INSERT YOUR CODE HERE
-
-
-   
-
+        max_gain = 0
+        i = 0
+        for j in range(len(X[:,0])): # Loop through atributes
+            gain = Tree.information_gain(Y, X[j, :]) # Calculate info gain from atribute
+            if gain > max_gain: # If new max gain, set i and max_gain
+                max_gain = gain
+                i = j
  
         #########################################
         return i
@@ -164,11 +163,12 @@ class Tree(object):
                    Each (key, value) pair represents an attribute value and its corresponding child node.
         '''
         #########################################
-        ## INSERT YOUR CODE HERE
+        attributes = Counter(X[i,:])
+        keys_list = list(attributes.keys()) 
+        values_list = list(attributes.values())
 
-
-
-
+        C = dict.fromkeys(keys_list, Node(X,Y, i=None,C=None, isleaf= False,p=None))
+        print(C)
         #########################################
         return C
 
