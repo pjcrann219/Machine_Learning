@@ -1,6 +1,7 @@
 import math
 import numpy as np
 from collections import Counter
+
 # Note: please don't add any new package, you should solve this problem using only the packages above.
 # However, importing the Python standard library is allowed: https://docs.python.org/3/library/
 #-------------------------------------------------------------------------
@@ -165,10 +166,15 @@ class Tree(object):
         #########################################
         attributes = Counter(X[i,:])
         keys_list = list(attributes.keys()) 
-        values_list = list(attributes.values())
+        # values_list = list(attributes.values())
 
-        C = dict.fromkeys(keys_list, Node(X,Y, i=None,C=None, isleaf= False,p=None))
-        print(C)
+        C = {key: Node(X, Y, i=None, C=None, isleaf=False, p=None) for key in keys_list}
+
+        for this_attribute in keys_list:
+            this_idx = X[i,:]==this_attribute
+            C[this_attribute].X = X[:,this_idx]
+            C[this_attribute].Y = Y[this_idx]       
+  
         #########################################
         return C
 
@@ -186,10 +192,11 @@ class Tree(object):
                 True if all labels are the same. Otherwise, false.
         '''
         #########################################
-        ## INSERT YOUR CODE HERE
 
-
-
+        if len(Counter(Y)) == 1:
+            s = True
+        else:
+            s = False
         
         #########################################
         return s
@@ -207,18 +214,12 @@ class Tree(object):
                 s: whether or not Conidtion 2 holds, a boolean scalar. 
         '''
         #########################################
-        ## INSERT YOUR CODE HERE
 
-    
-   
-
-
-
+        s = all((X[:, i] == X[:, 0]).all() for i in range(1, X.shape[1]))
  
         #########################################
         return s
-    
-            
+        
     #--------------------------
     @staticmethod
     def most_common(Y):
@@ -232,12 +233,9 @@ class Tree(object):
                 y: the most common label, a scalar, can be int/float/string.
         '''
         #########################################
-        ## INSERT YOUR CODE HERE
-    
+        
+        y = Counter(Y).most_common(1)[0][0]
 
-
-
- 
         #########################################
         return y
     
@@ -258,13 +256,21 @@ class Tree(object):
                    Each (key, value) pair represents an attribute value and its corresponding child node.
         '''
         #########################################
-        ## INSERT YOUR CODE HERE
     
+        # Check if node should split
+        if Tree.stop1(t.Y) or Tree.stop2(t.X):
+            t.isleaf = True
+            t.p = Tree.most_common(t.Y)
+        else:
+            # Split node
+            t.isLeaf = False
+            t.p = Tree.most_common(t.Y)
+            t.i = Tree.best_attribute(t.X, t.Y)
+            t.C = Tree.split(t.X, t.Y, t.i)
+            # build tree nodes for all nodes
+            for i in t.C:
+                Tree.build_tree(t.C[i])
 
-   
-
-
- 
         #########################################
     
     
@@ -283,11 +289,10 @@ class Tree(object):
                 t: the root of the tree.
         '''
         #########################################
-        ## INSERT YOUR CODE HERE
+
+        t = Node(X=X, Y=Y)
+        Tree.build_tree(t)
     
-
-
- 
         #########################################
         return t
     
@@ -307,13 +312,14 @@ class Tree(object):
                    Each element can be int/float/string.
         '''
         #########################################
-        ## INSERT YOUR CODE HERE
-
-   
-
-
-
-
+        if t.isleaf:
+            print('isleaf')
+            y = t.p
+        else:
+            print(x[t.i])
+            print(t.C)
+            y = Tree.inference(t.C[x[t.i]], x)
+            
  
         #########################################
         return y
@@ -363,11 +369,12 @@ class Tree(object):
                    Each element can be int/float/string.
         '''
         #########################################
-        ## INSERT YOUR CODE HERE
+        with open(filename, 'r') as file:
+            lines = file.readlines()
+        
+        Y = np.array([line.strip().split(',')[0] for line in lines])[1:]
+        X = np.array([line.strip().split(',')[1:] for line in lines])[1:,:].T
 
-
-
- 
         #########################################
         return X,Y
 
