@@ -53,6 +53,7 @@ class Tree(object):
             Hint: you could use collections.Counter.
         '''
         #########################################
+
         counter = Counter(Y)
         total_instances = len(Y)
 
@@ -81,7 +82,6 @@ class Tree(object):
         '''
         #########################################
  
-        # Loop through values (Ys)
         ce = 0
         counter_X = Counter(X)
         S_bar = len(X)
@@ -109,7 +109,9 @@ class Tree(object):
                 g: the information gain of y after spliting over x, a float scalar
         '''
         #########################################
+
         g = Tree.entropy(Y) - Tree.conditional_entropy(Y, X)
+
         #########################################
         return g
 
@@ -130,6 +132,7 @@ class Tree(object):
                 i: the index of the attribute to split, an integer scalar
         '''
         #########################################
+
         max_gain = 0
         i = 0
         for j in range(len(X[:,0])): # Loop through atributes
@@ -164,9 +167,9 @@ class Tree(object):
                    Each (key, value) pair represents an attribute value and its corresponding child node.
         '''
         #########################################
+
         attributes = Counter(X[i,:])
         keys_list = list(attributes.keys()) 
-        # values_list = list(attributes.values())
 
         C = {key: Node(X, Y, i=None, C=None, isleaf=False, p=None) for key in keys_list}
 
@@ -312,15 +315,14 @@ class Tree(object):
                    Each element can be int/float/string.
         '''
         #########################################
+        
         if t.isleaf:
-            print('isleaf')
+            y = t.p
+        elif x[t.i] not in t.C: # if attribute doesnt exist in C
             y = t.p
         else:
-            print(x[t.i])
-            print(t.C)
             y = Tree.inference(t.C[x[t.i]], x)
             
- 
         #########################################
         return y
     
@@ -339,11 +341,10 @@ class Tree(object):
                    Each element can be int/float/string.
         '''
         #########################################
-        ## INSERT YOUR CODE HERE
 
-
-
-
+        Y = X[0, :]
+        for idx, x in enumerate(X.T):
+            Y[idx] = Tree.inference(t,x)
 
         #########################################
         return Y
@@ -369,6 +370,7 @@ class Tree(object):
                    Each element can be int/float/string.
         '''
         #########################################
+
         with open(filename, 'r') as file:
             lines = file.readlines()
         
@@ -377,6 +379,3 @@ class Tree(object):
 
         #########################################
         return X,Y
-
-
-
