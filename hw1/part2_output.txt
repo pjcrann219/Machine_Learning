@@ -1,0 +1,41 @@
+Task 2-1
+Attribute Income
+| Value = low
+| Attribute Married?
+| | Value = no
+| | Attribute Debt
+| | | Value = low
+| | | Leaf: Predicted Label = low
+| | | Value = medium
+| | | Attribute Gender
+| | | | Value = male
+| | | | Leaf: Predicted Label = high
+| | | | Value = female
+| | | | Leaf: Predicted Label = low
+| | Value = yes
+| | Leaf: Predicted Label = high
+| Value = high
+| Leaf: Predicted Label = low
+| Value = medium
+| Leaf: Predicted Label = low
+['low' 'low']
+
+Task 2-2
+Attribute Income
+| Value = low
+| Attribute Debt
+| | Value = low
+| | Attribute Married?
+| | | Value = no
+| | | Leaf: Predicted Label = low
+| | | Value = yes
+| | | Leaf: Predicted Label = high
+| | Value = medium
+| | Leaf: Predicted Label = high
+| | Value = high
+| | Leaf: Predicted Label = high
+| Value = high
+| Leaf: Predicted Label = low
+| Value = medium
+| Leaf: Predicted Label = low
+['low' 'low']
