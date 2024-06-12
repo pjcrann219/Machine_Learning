@@ -41,15 +41,25 @@ test = np.array([
     ["low", "medium", "yes", "Yes", "Female"]
 ]).T
 
-print("Task 2-1")
 X = data[:, 1:-1].T
 Y = data[:,-1]
 t1 = Tree.train(X,Y)
-print_tree(t1)
-print(Tree.predict(t1, test))
 
-print("\nTask 2-2")
 Y[-1] = 'high'
 t2 = Tree.train(X,Y)
+
+print_tree(t1)
+print(f"[Tom Risk, Ana Risk] = {Tree.predict(t1, test)}")
+
+print('\n\n')
+print("Task 2-2")
+
 print_tree(t2)
-print(Tree.predict(t2, test))
+print(f"[Tom Risk, Ana Risk] = {Tree.predict(t2, test)}")
+
+print('''
+By changing Sophias credit risk to ‘high', we swap the second node attribute from Married to Debt and vice versa for 
+the third node. The original tree then needs the gender attribute to further split our training data, while the second tree gains no information by doing so.
+In our original decision tree, the property attribute is not used.
+In our second decision tree, the property and gender attributes are not used.
+      ''')

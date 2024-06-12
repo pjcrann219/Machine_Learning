@@ -23,9 +23,12 @@ def compute_Phi(x,p):
             Phi: the design/feature matrix of x, a numpy array of shape (n,p).
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
 
+    n = len(x)
+    Phi = np.zeros([n, p])
 
+    for i in range(p):
+        Phi[:,i] = np.power(x, i)
 
     #########################################
     return Phi 
@@ -43,8 +46,8 @@ def compute_yhat(Phi, w):
         Hint: you could solve this problem using 1 line of code. Though using more lines of code is also okay.
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
 
+    yhat = np.dot(Phi, w)
 
     #########################################
 
@@ -61,9 +64,8 @@ def compute_L(yhat,y):
             L: the loss value of linear regression, a float scalar.
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
-
-
+    
+    L = np.sum((yhat-y)**2) / (2 * len(yhat))
 
     #########################################
     return L 
@@ -83,8 +85,10 @@ def compute_dL_dw(y, yhat, Phi):
 
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
-
+    
+    dL_dw = (yhat - y) @ Phi
+    
+    print(dL_dw)
 
 
     #########################################
@@ -129,7 +133,7 @@ def train(X, Y, alpha=0.001, n_epoch=100):
     # initialize weights as 0
     w = np.array(np.zeros(X.shape[1])).T
 
-    for _ in range(n_epoch):
+    # for _ in range(n_epoch):
 
     #########################################
     ## INSERT YOUR CODE HERE
