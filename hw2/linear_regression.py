@@ -85,11 +85,8 @@ def compute_dL_dw(y, yhat, Phi):
 
     '''
     #########################################
-    
-    dL_dw = (yhat - y) @ Phi
-    
-    print(dL_dw)
 
+    dL_dw = (yhat - y) @ Phi / len(yhat)
 
     #########################################
     return dL_dw
@@ -109,8 +106,8 @@ def update_w(w, dL_dw, alpha = 0.001):
     '''
     
     #########################################
-    ## INSERT YOUR CODE HERE
 
+    w -= alpha * dL_dw
 
     #########################################
     return w
@@ -133,8 +130,8 @@ def train(X, Y, alpha=0.001, n_epoch=100):
     # initialize weights as 0
     w = np.array(np.zeros(X.shape[1])).T
 
-    # for _ in range(n_epoch):
-
+    for _ in range(n_epoch):
+        
     #########################################
     ## INSERT YOUR CODE HERE
 
