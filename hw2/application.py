@@ -21,8 +21,22 @@ X = np.array(X)
 Xtrain, Ytrain, Xtest, Ytest = X[::2], y[::2], X[1::2], y[1::2]
 
 #########################################
-## INSERT YOUR CODE HERE
 
+def train_and_test(Xtrain, Ytrain, Xtest, Ytest, alpha, n_epoch):
+    w = train(Xtrain, Ytrain, alpha, n_epoch)
+    yhat = compute_yhat(Xtest, w)
+    L = compute_L(yhat,Ytest)
+    return L
+
+n_epochs = np.array([10, 100, 1000, 10000, 100000])
+for n_epoch in n_epochs:
+    L = train_and_test(Xtrain, Ytrain, Xtest, Ytest, 0.01, n_epoch)
+    print(f"n_epoch: {n_epoch}\tL: {L}")
+
+alphas = np.array([.1, .01, .001, .0001])
+for alpha in alphas:
+    L = train_and_test(Xtrain, Ytrain, Xtest, Ytest, alpha, 100000)
+    print(f"alpha: {alpha}\tL: {L}")
 
 #########################################
 

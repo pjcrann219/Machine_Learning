@@ -131,17 +131,15 @@ def train(X, Y, alpha=0.001, n_epoch=100):
     w = np.array(np.zeros(X.shape[1])).T
 
     for _ in range(n_epoch):
-        
+
     #########################################
-    ## INSERT YOUR CODE HERE
 
     # Back propagation: compute local gradients 
-        
+        yhat = compute_yhat(X, w)
+        dL_dw = compute_dL_dw(Y, yhat, X)
 
-        
-        
     # update the parameters w
-        
+        w = update_w(w, dL_dw, alpha)
 
      #########################################
     return w
