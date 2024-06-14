@@ -1,0 +1,4 @@
+Part 2:
+Alpha = 0.001, Num Epochs: 10000, Test Loss: 0.00299
+
+As we decrease our Alpha value, we must increase the number of epochs to achieve a similar loss. This is because on each epoch we are updating our weights by less, meaning we need to update them more times to converge on optimal weights. Conversely, is we have larger Alpha values, we need fewer epochs to converge close to the optimal weights (assuming its not too large where we don't converge). 
