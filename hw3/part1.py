@@ -60,9 +60,9 @@ def compute_z(x,w,b):
         Hint: you could solve this problem using 1 line of code. Though using more lines of code is also okay.
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
 
-    
+    z = x.T @ w + b
+
     #########################################
     return z 
 
@@ -76,9 +76,21 @@ def compute_a(z):
             a: the activation, a float scalar
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
 
+    try:
+        if isinstance(z, np.ndarray): # Getting pytest warnings where z is a 1d array
+            z = z.flatten()[0]
+        a = float(1. / (1. + np.exp(-z)))
+    except FloatingPointError:
+        if z < 0:
+            a = 0.0
+        else:
+            a = 1.0
+    except Exception as e:
+        print(f"Exception of type {type(e).__name__} occurred.")
+        
     #########################################
+    
     return a
 
 #--------------------------
@@ -93,11 +105,19 @@ def compute_L(a,y):
             L: the loss value of logistic regression, a float scalar.
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
+    
+    if isinstance(a, np.ndarray): # Getting pytest warnings where a is a 1d array
+        a = a[0]
 
+    if np.abs(a - y) == 1:
+        L = float(1e6)
+    elif y == 1:
+        L = -math.log(a)
+    else:
+        L = -math.log(1.-a)
 
     #########################################
-    return L 
+    return L
 
 #--------------------------
 def forward(x,y,w,b):
@@ -115,8 +135,10 @@ def forward(x,y,w,b):
         Hint: you could solve this problem using 3 lines of code. Though using more lines of code is also okay.
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
-
+    
+    z = compute_z(x,w,b)
+    a = compute_a(z)
+    L = compute_L(a, y)
 
     #########################################
     return z, a, L 
@@ -139,7 +161,17 @@ def compute_dL_da(a, y):
             dL_da: the local gradient of the loss function w.r.t. the activation, a float scalar value.
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
+
+    if y==1:
+        if a == 0:
+            dL_da = 0
+        else:
+            dL_da = -1 / a
+    else:
+        if a == 1:
+            dL_da = 1e6
+        else:
+            dL_da = 1 / (1-a)
 
     #########################################
     return dL_da 
@@ -158,7 +190,8 @@ def compute_da_dz(a):
         Hint: you could solve this problem using 1 line of code.
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
+
+    da_dz = a*(1-a)
 
     #########################################
     return da_dz 
@@ -176,8 +209,9 @@ def compute_dz_dw(x):
         Hint: you could solve this problem using 1 line of code. 
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
 
+    dz_dw = x
+    
     #########################################
     return dz_dw
 
@@ -190,8 +224,9 @@ def compute_dz_db():
             dz_db: the partial gradient of logit z with respect to the bias b, a float scalar. It represents (d_z / d_b).
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
 
+    dz_db = 1.0
+    
     #########################################
     return dz_db
 
@@ -216,8 +251,12 @@ def backward(x,y,a):
             dz_db: the partial gradient of logit z with respect to the bias, a float scalar. It represents (d_z / d_b).
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
 
+    dL_da = compute_dL_da(a, y)
+    da_dz = compute_da_dz(a)
+    dz_dw = compute_dz_dw(x)
+    dz_db = compute_dz_db()
+    
     #########################################
     return dL_da, da_dz, dz_dw, dz_db 
 
@@ -237,7 +276,8 @@ def compute_dL_dw(dL_da, da_dz, dz_dw):
         Hint: you could solve this problem using 1 lines of code
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
+
+    dL_dw = dL_da * da_dz * dz_dw
 
     #########################################
     return dL_dw
@@ -256,7 +296,8 @@ def compute_dL_db(dL_da, da_dz, dz_db):
         Hint: you could solve this problem using 1 lines of code 
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
+
+    dL_db = dL_da * da_dz * dz_db
 
     #########################################
     return dL_db 
@@ -280,7 +321,8 @@ def update_w(w, dL_dw, alpha=0.001):
     '''
     
     #########################################
-    ## INSERT YOUR CODE HERE
+
+    w -= alpha * dL_dw
 
     #########################################
     return w
@@ -299,7 +341,8 @@ def update_b(b, dL_db, alpha=0.001):
     '''
     
     #########################################
-    ## INSERT YOUR CODE HERE
+
+    b -= alpha * dL_db
 
     #########################################
     return  b 
@@ -328,12 +371,16 @@ We repeat n_epoch passes over all the training instances.
         for x,y in zip(X,Y):
             x = x.T # convert to column vector
             #########################################
-            ## INSERT YOUR CODE HERE
+
+            z, a, L = forward(x,y,w,b)
+            dL_da, da_dz, dz_dw, dz_db = backward(x,y,a)
+            dL_dw = compute_dL_dw(dL_da, da_dz, dz_dw)
+            dL_db = compute_dL_db(dL_da, da_dz, dz_db)
+            w = update_w(w, dL_dw, alpha)
+            b = update_b(b, dL_db, alpha)
 
             #########################################
     return w, b
-
-
 
 #--------------------------
 def predict(Xtest, w, b):
@@ -357,9 +404,13 @@ def predict(Xtest, w, b):
     for i, x in enumerate(Xtest):
         x = x.T # convert to column vector
         #########################################
-        ## INSERT YOUR CODE HERE
 
+        z = x @ w + b
+        a = compute_a(z)
+        P[i] = a
+        Y[i] = 1 if a >= 0.5 else 0
         #########################################
+
     return Y, P
 
 
