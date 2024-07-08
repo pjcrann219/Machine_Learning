@@ -1,5 +1,4 @@
 import os
-import torch
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import transforms
@@ -17,6 +16,8 @@ class RoadSignDataset(Dataset):
         self.annotations_dir = annotations_dir
         self.transform = transform
         self.image_paths = [f for f in os.listdir(root_dir) if f.endswith('.png')]
+        self.label_map = {'stop': 0, 'speedlimit': 1, 'crosswalk': 2, 'trafficlight': 3}
+        self.value_map = {v: k for k, v in self.label_map.items()}
         self.labels = self.load_labels()
 
     def __len__(self):
@@ -36,7 +37,7 @@ class RoadSignDataset(Dataset):
             # Extract label from XML file
             xml_path = os.path.join(self.annotations_dir, os.path.splitext(image_path)[0] + '.xml')
             label = self.extract_label_from_xml(xml_path)
-            labels.append(label)
+            labels.append(self.label_map[label])
         return labels
 
     def extract_label_from_xml(self, xml_path):
@@ -62,3 +63,30 @@ class RoadSignDataset(Dataset):
         plt.imshow(image)
         plt.axis('off')  # Turn off axis
         plt.show()
+
+    def getImageSize(self, idx):
+        img_name = os.path.join(self.root_dir, self.image_paths[idx])
+        image = Image.open(img_name).convert('RGB')
+        return image.size
+
+
+## See Image Sizes
+# dataset = RoadSignDataset(root_dir='images', annotations_dir='annotations')
+# # dataset.showClassStats()
+# # print(dataset.label_map['stop'])
+# import numpy as np
+
+# sizes = np.zeros([len(dataset), 2])
+# for i in range(len(dataset)):
+#     sizes[i,:] = dataset.getImageSize(i)
+
+# plt.figure()
+# plt.plot(np.arange(len(dataset)), sizes[:,0], '.')
+# plt.plot(np.arange(len(dataset)), sizes[:,1], '.')
+# plt.show()
+
+# for col in range(sizes.shape[1]):
+#     col_data = sizes[:, col]
+#     min_val = np.min(col_data)
+#     max_val = np.max(col_data)
+#     print(f"Column {col + 1}: Min = {min_val}, Max = {max_val}")

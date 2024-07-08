@@ -1,11 +1,14 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import torchvision
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
-from CNN import CNN
-from myDataSet import RoadSignDataset
+import numpy as np
+import matplotlib.pyplot as plt
+import time
+
+from CNN import *
+from DatasetLoaders import RoadSignDataset
 
 
 transform = transforms.Compose([
@@ -26,36 +29,79 @@ batch_size = 4
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
 
-# Device configuration (GPU/CPU)
+# Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print(f"Device: {device}")
 
 # Initialize the model
-model = CNN().to(device)
+model = CNN_32x32().to(device)
+# model = CNN_300x400().to(device)
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-# Training the model
-num_epochs = 5
+# Training
+print(f"Model: {model.name}, Device: {device}, Batch Size: {batch_size}")
+time_start = time.time()
+num_epochs = 10
 total_step = len(train_loader)
+train_loss_data = np.zeros(num_epochs)
+test_loss_data = np.zeros(num_epochs)
+
 for epoch in range(num_epochs):
+    # Training loop
+    model.train()
+    train_loss = 0.0
     for i, (images, labels) in enumerate(train_loader):
-        print(labels)
         images = images.to(device)
         labels = labels.to(device)
 
-        # Forward pass
+        optimizer.zero_grad()
         outputs = model(images)
         loss = criterion(outputs, labels)
-
-        # Backward and optimize
-        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-        if (i+1) % 100 == 0:
-            print(f'Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{total_step}], Loss: {loss.item():.4f}')
+        train_loss += loss.item()
 
-print('Training finished')
+    train_loss_data[epoch] = train_loss / len(train_loader)
+
+    # Testing loop
+    model.eval()  # Set model to evaluation mode
+    test_loss = 0.0
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for images, labels in test_loader:
+            images = images.to(device)
+            labels = labels.to(device)
+
+            outputs = model(images)
+            loss = criterion(outputs, labels)
+            test_loss += loss.item()
+
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+
+    test_loss_data[epoch] = test_loss / len(test_loader)
+    accuracy = 100 * correct / total
+
+    print(f'Epoch [{epoch+1}/{num_epochs}], '
+          f'Train Loss: {train_loss_data[epoch]:.4f}, '
+          f'Test Loss: {test_loss_data[epoch]:.4f}, '
+          f'Test Accuracy: {accuracy:.2f}%')
+    
+dt = time.time() - time_start
+print(f'Training finished in {dt:.1f} seconds')
+
+# Plotting the losses
+plt.figure()
+plt.plot(np.arange(num_epochs), train_loss_data, '-x', label='Training Loss')
+plt.plot(np.arange(num_epochs), test_loss_data, '-x', label='Testing Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.title(f'Training and Testing Loss over {num_epochs} Epochs')
+plt.legend()
+plt.grid()
+plt.show()
