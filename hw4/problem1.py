@@ -63,7 +63,8 @@ def compute_z(x,W,b):
         Hint: you could solve this problem using 1 line of code.
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
+    
+    z = W @ x + b
 
     #########################################
     return z 
@@ -79,7 +80,20 @@ def compute_a(z):
             a: the softmax activations, a float numpy vector of shape (c, ). 
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
+
+    # Handle overflow errors
+    z_p = z - np.max(z)
+
+    # Hanlde underflow errors
+    exp_z = np.zeros_like(z_p)
+    for i in range(len(z_p)):
+        try:
+            exp_z[i] = np.exp(z_p[i])
+        except FloatingPointError:
+            exp_z[i] = 0.0
+
+    a = exp_z / np.sum(exp_z)
+
 
     #########################################
     return a
@@ -95,10 +109,15 @@ def compute_L(a,y):
             L: the loss value of softmax regression, a float scalar.
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
+
+    if a[y] == 0:
+        L = 1e6
+    else:
+        L = -np.log(a[y])
+        L = float(L.item())
 
     #########################################
-    return L 
+    return L
 
 #-----------------------------------------------------------------
 def forward(x,y,W,b):
@@ -115,7 +134,10 @@ def forward(x,y,W,b):
             L: the loss value of softmax regression, a float scalar.
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
+
+    z = compute_z(x, W, b)
+    a = compute_a(z)
+    L = compute_L(a, y)
 
     #########################################
     return z, a, L 
@@ -139,7 +161,12 @@ def compute_dL_da(a, y):
                    The i-th element dL_da[i] represents the partial gradient of the loss function w.r.t. the i-th activation a[i]:  d_L / d_a[i].
     '''
     #########################################
-    ## INSERT YOUR CODE HERE    
+
+    dL_da = np.zeros_like(a)
+    if a[y] == 0:
+        dL_da[y] = -1e6
+    else:
+        dL_da[y] = -1/a[y]
 
     #########################################
     return dL_da 
@@ -158,8 +185,12 @@ def compute_da_dz(a):
         (3 points)
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
-
+    
+    da_dz = np.zeros((len(a), len(a)))
+    a2d = a[:, np.newaxis]
+    da_dz = -np.transpose(a2d) * a2d
+    np.fill_diagonal(da_dz, a * (1-a))
+    
     #########################################
     return da_dz 
 
@@ -177,7 +208,10 @@ def compute_dz_dW(x,c):
         Hint: the partial gradients only depend on the input x and the number of classes 
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
+    
+    dz_dW = np.zeros([c, len(x)])
+    for i in range(c):
+        dz_dW[i,:] = x
 
     #########################################
     return dz_dW
@@ -197,7 +231,8 @@ def compute_dz_db(c):
         Hint: you could solve this problem using 1 line of code.
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
+    
+    dz_db = np.ones([c, ])
 
     #########################################
     return dz_db
@@ -226,7 +261,12 @@ def backward(x, y, a):
                    Each element dz_db[i] represents the partial gradient of the i-th logit z[i] w.r.t. the i-th bias:  d_z[i] / d_b[i]
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
+
+    c = len(a)
+    dL_da = compute_dL_da(a, y)
+    da_dz = compute_da_dz(a)
+    dz_dW = compute_dz_dW(x,c)
+    dz_db = compute_dz_db(c)
 
     #########################################
     return dL_da, da_dz, dz_dW, dz_db
@@ -245,7 +285,8 @@ def compute_dL_dz(dL_da,da_dz):
                    The i-th element dL_dz[i] represents the partial gradient of the loss function L w.r.t. the i-th logit z[i]:  d_L / d_z[i].
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
+
+    dL_dz = dL_da @ da_dz
 
     #########################################
     return dL_dz
@@ -266,7 +307,10 @@ def compute_dL_dW(dL_dz,dz_dW):
                    The i,j-th element dL_dW[i,j] represents the partial gradient of the loss function L w.r.t. the i,j-th weight W[i,j]:  d_L / d_W[i,j]
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
+    
+    dL_dW = np.zeros_like(dz_dW)
+    for i, j in enumerate(dL_dz):
+        dL_dW[i,:] = j.item() * dz_dW[i,:]
 
     #########################################
     return dL_dW
@@ -288,7 +332,8 @@ def compute_dL_db(dL_dz,dz_db):
         Hint: you could solve this problem using 1 line of code in the block.
     '''
     #########################################
-    ## INSERT YOUR CODE HERE
+    
+    dL_db = dL_dz * dz_db
 
     #########################################
     return dL_db 
@@ -365,11 +410,11 @@ def train(X, Y, alpha=0.01, n_epoch=100):
     for _ in range(n_epoch):
         # go through each training instance
         for x, y in zip(X, Y):
-            print('for loop')
+            # print('for loop')
             #########################################
             ## INSERT YOUR CODE HERE
 
-
+            pass
             #########################################
     return W, b
 
@@ -391,10 +436,10 @@ def predict(Xtest, W, b):
     Y = np.zeros(n, dtype=int) # Initialize Y as integer array
     P = np.zeros((n, c)) # Initialize P with correct shape
     for i, x in enumerate(Xtest):
-        print('for loop')
+        # print('for loop')
         #########################################
         ## INSERT YOUR CODE HERE
-
+        pass
         #########################################
     return Y, P 
 
